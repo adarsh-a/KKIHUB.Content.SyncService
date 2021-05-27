@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKIHUB.Content.SyncService", "KKIHUB.Content.SyncService.csproj", "{85A165EB-265B-4ED9-AA66-D4135ED0CDDB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{85A165EB-265B-4ED9-AA66-D4135ED0CDDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85A165EB-265B-4ED9-AA66-D4135ED0CDDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85A165EB-265B-4ED9-AA66-D4135ED0CDDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85A165EB-265B-4ED9-AA66-D4135ED0CDDB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {984F3B7F-6CE1-4822-8CE4-36C4EB13D9C0}
+	EndGlobalSection
+EndGlobal
