@@ -20,7 +20,7 @@ namespace KKIHUB.Content.SyncService.Service
                 && Constants.Constants.HubToApi.ContainsKey(hub))
             {
                 var hubId = Constants.Constants.HubNameToId[hub];
-                var hupApi = Constants.Constants.HubToApi[hub];
+                var hubApi = Constants.Constants.HubToApi[hub];
                 try
                 {
                     var baseUrl = Constants.Constants.Endpoints.Base.Replace("{hubId}", hubId);
@@ -30,7 +30,7 @@ namespace KKIHUB.Content.SyncService.Service
                     var startdate = DateTime.UtcNow.AddDays(-days).ToString("o");
                     var endDate = DateTime.UtcNow.ToString("o");
 
-                    var parameters = $"start={startdate}&end={endDate}";
+                    var parameters = $"start={startdate}&end={endDate}&format=sequence&limit=1";
                     dateRangeUrl = $"{dateRangeUrl}?{parameters}";
 
                     var request = WebRequest.Create(new Uri(dateRangeUrl));
@@ -38,7 +38,7 @@ namespace KKIHUB.Content.SyncService.Service
 
                     //request.Credentials = new NetworkCredential("AcousticAPIKey", hupApi);
 
-                    string credidentials = "AcousticAPIKey" + ":" + hupApi;
+                    string credidentials = "AcousticAPIKey" + ":" + hubApi;
                     var authorization = Convert.ToBase64String(Encoding.Default.GetBytes(credidentials));
                     request.Headers["Authorization"] = "Basic " + authorization;
 
@@ -62,29 +62,30 @@ namespace KKIHUB.Content.SyncService.Service
                         var reader = new StreamReader(responseStream, Encoding.Default);
                         var responseAsString = reader.ReadToEnd();
 
-                        var resp = JsonConvert.DeserializeObject<JsonObject>(responseAsString);
+                        string[] items = responseAsString.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                        var items = resp["items"] as List<JObject>;
-
-                        if (items != null)
+                        if (items != null && items.Any())
                         {
-                            int itemsCount = items.Count;
-                            //foreach (var item in items) 
-                            //{
-                            JsonCreator.CreateJsonFile("test.json", "content", "test");
-                            //}
+                            foreach (var item in items)
+                            {
+                                var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
+                                var itemClassification = itemObj["classification"].ToString();
+                                var itemId = itemObj["id"];
+                                var itemName = $"{itemId}_cmd.json".Replace(":", "_");
 
+                                JsonCreator.CreateJsonFile(itemName, itemClassification, item);
+
+                                ExtractElement(itemObj, contentIdUrl, hubApi);
+                            }
                         }
 
-                        return resp;
+                        return null;
                     }
 
                 }
                 catch (Exception ex)
                 {
-
                     System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
-
                 }
             }
             else
@@ -96,8 +97,90 @@ namespace KKIHUB.Content.SyncService.Service
         }
 
 
-        private void FecthContentById(string url, string id, string apiKey)
+        private async Task FecthContentByIdAsync(string contentIdUrl, List<string> artifactIds, string hubApi)
         {
+
+            foreach (var id in artifactIds)
+            {
+                try
+                {
+                    string itemUrl = $"{contentIdUrl}/{id}";
+
+                    var request = WebRequest.Create(new Uri(itemUrl));
+                    request.Method = "GET";
+
+                    //request.Credentials = new NetworkCredential("AcousticAPIKey", hupApi);
+
+                    string credidentials = "AcousticAPIKey" + ":" + hubApi;
+                    var authorization = Convert.ToBase64String(Encoding.Default.GetBytes(credidentials));
+                    request.Headers["Authorization"] = "Basic " + authorization;
+
+                    request.ContentType = "application/json";
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    using (var response = await request.GetResponseAsync() as HttpWebResponse)
+                    {
+                        if (response != null)
+                        {
+                            var responseStream = response.GetResponseStream();
+                            if (responseStream != null)
+                            {
+                                var reader = new StreamReader(responseStream, Encoding.Default);
+                                var responseAsString = reader.ReadToEnd();
+
+                                var itemObj = JsonConvert.DeserializeObject<JsonObject>(responseAsString);
+                                var itemClassification = itemObj["classification"].ToString();
+                                var itemId = itemObj["id"];
+                                var itemName = $"{itemId}_cmd.json".Replace(":", "_");
+
+                                JsonCreator.CreateJsonFile(itemName, itemClassification, responseAsString);
+
+                                ExtractElement(itemObj, contentIdUrl, hubApi);
+
+                            }
+
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
+                }
+
+            }
+
+
+        }
+
+        private void ExtractElement(JsonObject itemObj, string contentIdUrl, string hubApi)
+        {
+            var elementString = itemObj["elements"].ToString();
+            var itemId = itemObj["id"].ToString();
+            List<string> associatedId = new List<string>();
+
+            string[] elements = elementString.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            if (elements != null && elements.Any())
+            {
+                foreach (var element in elements)
+                {
+                    if (element.Contains("\"id\":"))
+                    {
+                        var stringSplit = element.Trim().Split(" ");
+                        if (stringSplit.Length > 1)
+                        {
+                            var id = stringSplit[1].Replace("\"", "");
+                            if (!associatedId.Contains(id) && !string.Equals(itemId, id))
+                            {
+                                associatedId.Add(id);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (associatedId.Any())
+            {
+                _ = FecthContentByIdAsync(contentIdUrl, associatedId, hubApi);
+            }
 
         }
     }
