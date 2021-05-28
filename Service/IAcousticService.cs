@@ -8,6 +8,9 @@ namespace KKIHUB.Content.SyncService.Service
 {
     public interface IAcousticService
     {
-        Task<JsonObject> FetchArtifactForDateRangeAsync(int days, string hub);
+        Task<List<string>> FetchArtifactForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated);
+
+        Task<List<string>> FetchAssetForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated);
+
     }
 }

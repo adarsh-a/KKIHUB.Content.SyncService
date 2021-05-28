@@ -10,7 +10,7 @@ namespace KKIHUB.Content.SyncService.Helper
 {
     public static class JsonCreator
     {
-        public static void CreateJsonFile(string name, string type, object details)
+        public static string CreateJsonFile(string name, string type, object details)
         {
             string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
             Directory.CreateDirectory(path);
@@ -20,14 +20,11 @@ namespace KKIHUB.Content.SyncService.Helper
             if (!File.Exists(filePath))
             {
                 File.WriteAllText(filePath, details.ToString());
-
+                var msg = $"Item with Id {name} created";
+                Console.WriteLine(msg);
+                return msg;
             }
-            else
-            {
-                Console.WriteLine("File \"{0}\" already exists.", filePath);
-                return;
-            }
-
+            return string.Empty;
         }
     }
 }

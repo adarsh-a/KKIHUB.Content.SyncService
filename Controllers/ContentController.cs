@@ -20,10 +20,29 @@ namespace KKIHUB.Content.SyncService.Controllers
 
 
         [HttpGet]
-        [Route("Sync")]
-        public async Task<IActionResult> SyncContentAsync(int days, string hubId)
+        [Route("SyncComplete")]
+        public async Task<IActionResult> SyncContentAsync(int days, string sourceHub,string targetHub)
         {
-            var content = await ContentService.FetchContentAsync(days, hubId);
+            var content = await ContentService.FetchContentAsync(days, sourceHub, false, false);
+
+            return Json(content);
+        }
+
+
+        [HttpGet]
+        [Route("SyncRecursive")]
+        public async Task<IActionResult> SyncContentRecursive(int days, string sourceHub, string targetHub)
+        {
+            var content = await ContentService.FetchContentAsync(days, sourceHub, true, false);
+
+            return Json(content);
+        }
+
+        [HttpGet]
+        [Route("SyncUpdated")]
+        public async Task<IActionResult> SyncContentUpdated(int days, string sourceHub, string targetHub)
+        {
+            var content = await ContentService.FetchContentAsync(days, sourceHub, true, true);
 
             return Json(content);
         }

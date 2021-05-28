@@ -1,10 +1,15 @@
 ﻿using RestSharp;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace KKIHUB.Content.SyncService.Service
 {
     public interface IContentService
     {
-        Task<JsonObject> FetchContentAsync(int days, string hubId);
+        Task<List<string>> FetchContentAsync(int days, string hubId, bool recursive, bool onlyUpdated);
+
+
+        Task<List<string>> FetchAssetAsync(int days, string hubId, bool recursive, bool onlyUpdated);
+
     }
 }

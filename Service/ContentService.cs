@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,27 @@ namespace KKIHUB.Content.SyncService.Service
             this.acousticService = acousticService;
         }
 
-        public async Task<JsonObject> FetchContentAsync(int days, string hubId)
+        public async Task<List<string>> FetchContentAsync(int days, string hubId, bool recursive, bool onlyUpdated)
         {
-            var artifacts = await acousticService.FetchArtifactForDateRangeAsync(days, hubId);
             try
             {
-                return string.IsNullOrWhiteSpace(artifacts.ToString()) ? null : artifacts;
+                var artifacts = await acousticService.FetchArtifactForDateRangeAsync(days, hubId, recursive, onlyUpdated);
+                return artifacts;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"Fetch Artifacts error : {ex.Message}");
+                return null;
+            }
+
+        }
+        
+        public async Task<List<string>> FetchAssetAsync(int days, string hubId, bool recursive, bool onlyUpdated)
+        {
+            try
+            {
+                var artifacts = await acousticService.FetchAssetForDateRangeAsync(days, hubId, recursive, onlyUpdated);
+                return artifacts;
             }
             catch (Exception ex)
             {
