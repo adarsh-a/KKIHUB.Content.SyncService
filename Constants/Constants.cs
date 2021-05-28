@@ -7,7 +7,7 @@ namespace KKIHUB.Content.SyncService.Constants
         public static Dictionary<string, string> HubToApi = new Dictionary<string, string>
         {
             { "dev", "0cfd35055f2b4d22bca268ef6aafa477" },
-            //{ "uat", "e731bd7f39b8494aa2af7cd0fbc8dbe4" },
+            { "uat", "e731bd7f39b8494aa2af7cd0fbc8dbe4" },
             { "non-prod-8", "312b35e554ac4a408ca05b3a1d982f73" },
             //{ "hangar-test", "70aea51c-4e79-4d9e-bbf5-4a2c21a23a3c" }
         };
@@ -15,7 +15,7 @@ namespace KKIHUB.Content.SyncService.Constants
         public static Dictionary<string, string> HubNameToId = new Dictionary<string, string>
         {
             { "dev", "5892a5bb-1872-4776-8e96-7fdacade46a9" },
-            //{ "uat", "a590dc33-59b3-4b9b-b542-612ac16a7b39" },
+            { "uat", "a590dc33-59b3-4b9b-b542-612ac16a7b39" },
             { "non-prod-8", "37dd7bf6-5628-4aac-8464-f4894ddfb8c4" },
             { "hangar-test", "70aea51c-4e79-4d9e-bbf5-4a2c21a23a3c" }
         };

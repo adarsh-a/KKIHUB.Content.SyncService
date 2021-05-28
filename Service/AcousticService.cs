@@ -151,7 +151,7 @@ namespace KKIHUB.Content.SyncService.Service
                         var baseUrl = Constants.Constants.Endpoints.Base.Replace("{hubId}", hubId);
                         var typeUrl = $"{baseUrl}{ Constants.Constants.Endpoints.FetchType}";
 
-                        var parameters = $"format=array&offset={offset}&limit=10";
+                        var parameters = $"format=sequence&offset={offset}&limit=10";
                         typeUrl = $"{typeUrl}?{parameters}";
 
                         var request = WebRequest.Create(new Uri(typeUrl));
@@ -361,20 +361,21 @@ namespace KKIHUB.Content.SyncService.Service
                 var reader = new StreamReader(responseStream, Encoding.Default);
                 var responseAsString = reader.ReadToEnd();
 
-                var items = JsonConvert.DeserializeObject<JsonObject[]>(responseAsString);
+                string[] items = responseAsString.Split("\n");
+                
                 itemCount = items.Length;
 
                 if (items != null && items.Any())
                 {
                     foreach (var item in items)
                     {
-                        var itemObj = item;
-                        //var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
+                        //var itemObj = item;
+                        var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
                         var itemClassification = itemObj["classification"].ToString();
-                        var itemId = itemObj["id"];
-                        var itemName = $"{itemId}_cmd.json".Replace(":", "_");
+                        var itemId = itemObj["name"];
+                        var itemName = $"{itemId}.json".Replace(":", "_").Replace(" ","-");
 
-                        var msg = JsonCreator.CreateJsonFile(itemName, itemClassification, item);
+                        var msg = JsonCreator.CreateJsonFile(itemName, "types", item);
                         if (!string.IsNullOrWhiteSpace(msg))
                         {
                             ItemsFetched.Add(msg);
