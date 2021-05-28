@@ -30,11 +30,11 @@ namespace KKIHUB.Content.SyncService.Service
 
         }
         
-        public async Task<List<string>> FetchAssetAsync(int days, string hubId, bool recursive, bool onlyUpdated)
+        public async Task<List<string>> FetchTypeAsync(int days, string hubId, bool recursive, bool onlyUpdated)
         {
             try
             {
-                var artifacts = await acousticService.FetchAssetForDateRangeAsync(days, hubId, recursive, onlyUpdated);
+                var artifacts = await acousticService.FetchTypeAsync(days, hubId, recursive, onlyUpdated);
                 return artifacts;
             }
             catch (Exception ex)

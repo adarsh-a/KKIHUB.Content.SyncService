@@ -10,20 +10,20 @@ namespace KKIHUB.Content.SyncService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AssetController : Controller
+    public class TypeController : Controller
     {
         private IContentService ContentService { get; set; }
-        public AssetController(IContentService contentService)
+        public TypeController(IContentService contentService)
         {
             this.ContentService = contentService;
         }
 
 
         [HttpGet]
-        [Route("SyncUpdated")]
-        public async Task<IActionResult> SyncContentUpdated(int days, string sourceHub, string targetHub)
+        [Route("Sync")]
+        public async Task<IActionResult> SyncContentUpdated(string sourceHub)
         {
-            var content = await ContentService.FetchAssetAsync(days, sourceHub, true, false);
+            var content = await ContentService.FetchTypeAsync(0, sourceHub, true, false);
 
             return Json(content);
         }

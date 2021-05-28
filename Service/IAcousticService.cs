@@ -10,7 +10,7 @@ namespace KKIHUB.Content.SyncService.Service
     {
         Task<List<string>> FetchArtifactForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated);
 
-        Task<List<string>> FetchAssetForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated);
+        Task<List<string>> FetchTypeAsync(int days, string hub, bool recursive, bool onlyUpdated);
 
     }
 }
