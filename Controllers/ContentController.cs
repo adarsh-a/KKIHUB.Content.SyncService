@@ -46,5 +46,16 @@ namespace KKIHUB.Content.SyncService.Controllers
 
             return Json(content);
         }
+
+
+        [HttpGet]
+        [Route("ContentByLibrary")]
+        public async Task<IActionResult> ContentByLibrary(string sourceHub, string libraryId)
+        {
+            var content = await ContentService.FetchContentByLibrary(sourceHub, libraryId);
+
+            return Json(content);
+        }
+
     }
 }

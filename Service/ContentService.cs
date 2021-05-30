@@ -44,5 +44,22 @@ namespace KKIHUB.Content.SyncService.Service
             }
 
         }
+
+
+        public async Task<List<string>> FetchContentByLibrary(string hubId, string libraryId)
+        {
+            try
+            {
+                var artifacts = await acousticService.FetchContentByLibrary(hubId, libraryId);
+                return artifacts;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"Fetch Artifacts error : {ex.Message}");
+                return null;
+            }
+
+        }
+
     }
 }

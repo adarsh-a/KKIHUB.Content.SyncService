@@ -362,7 +362,7 @@ namespace KKIHUB.Content.SyncService.Service
                 var responseAsString = reader.ReadToEnd();
 
                 string[] items = responseAsString.Split("\n");
-                
+
                 itemCount = items.Length;
 
                 if (items != null && items.Any())
@@ -373,7 +373,7 @@ namespace KKIHUB.Content.SyncService.Service
                         var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
                         var itemClassification = itemObj["classification"].ToString();
                         var itemId = itemObj["name"];
-                        var itemName = $"{itemId}.json".Replace(":", "_").Replace(" ","-");
+                        var itemName = $"{itemId}.json".Replace(":", "_").Replace(" ", "-");
 
                         var msg = JsonCreator.CreateJsonFile(itemName, "types", item);
                         if (!string.IsNullOrWhiteSpace(msg))
@@ -402,5 +402,128 @@ namespace KKIHUB.Content.SyncService.Service
             }
             return itemCount;
         }
+
+
+        public async Task<List<string>> FetchContentByLibrary(string hub, string libraryId)
+        {
+            ItemsFetched.Add($"Sync Started at {DateTime.Now}");
+            int offset = 0;
+            int itemReturned = 0;
+
+            if (Constants.Constants.HubNameToId.ContainsKey(hub)
+                && Constants.Constants.HubToApi.ContainsKey(hub))
+            {
+                var hubId = Constants.Constants.HubNameToId[hub];
+                var hubApi = Constants.Constants.HubToApi[hub];
+                try
+                {
+                    while (itemReturned >= 0)
+                    {
+                        var baseUrl = Constants.Constants.Endpoints.Base.Replace("{hubId}", hubId);
+                        var typeUrl = $"{baseUrl}{ Constants.Constants.Endpoints.FetchContentById}";
+
+                        var parameters = $"offset={offset}&limit=50&format=sequence";
+                        typeUrl = $"{typeUrl}?{parameters}";
+
+                        var request = WebRequest.Create(new Uri(typeUrl));
+                        request.Method = "GET";
+
+                        string credidentials = "AcousticAPIKey" + ":" + hubApi;
+                        var authorization = Convert.ToBase64String(Encoding.Default.GetBytes(credidentials));
+                        request.Headers["Authorization"] = "Basic " + authorization;
+
+                        request.ContentType = "application/json";
+                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        using (var response = await request.GetResponseAsync() as HttpWebResponse)
+                        {
+                            if (response != null)
+                            {
+                                itemReturned = ResponseStreamLogicContentAsync(response, itemReturned, libraryId);
+                                offset = offset + itemReturned;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
+                    return ItemsFetched;
+                }
+            }
+            else
+            {
+                System.Diagnostics.Trace.TraceError($"Hub Map not found ");
+                return ItemsFetched;
+            }
+            ItemsFetched.Add($"Sync Ended at {DateTime.Now}");
+            return ItemsFetched;
+        }
+
+
+        private int ResponseStreamLogicContentAsync(HttpWebResponse response,
+          int itemCount, string libraryId)
+        {
+
+            var responseStream = response.GetResponseStream();
+            if (responseStream != null)
+            {
+                var reader = new StreamReader(responseStream, Encoding.Default);
+                var responseAsString = reader.ReadToEnd();
+
+                string[] items = responseAsString.Split("\n");
+                
+                itemCount = items.Length;
+
+                if (items != null && items.Any())
+                {
+                    foreach (var item in items)
+                    {
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            //var itemObj = item;
+                            try
+                            {
+                                var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
+
+                                if (itemObj.ContainsKey("libraryId"))
+                                {
+                                    var itemId = itemObj["id"];
+                                    var itemLibraryId = itemObj["libraryId"].ToString();
+                                    if (itemLibraryId == libraryId)
+                                    {
+                                        var itemClassification = itemObj["classification"].ToString();
+
+                                        var itemName = $"{itemId}_cmd.json".Replace(":", "_sep_").Replace(" ", "-");
+
+                                        var msg = JsonCreator.CreateJsonFile(itemName, itemClassification, item);
+                                        if (!string.IsNullOrWhiteSpace(msg))
+                                        {
+                                            ItemsFetched.Add(msg);
+
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                                var errorMsg = $"Fetch Content {item} error : {ex.Message} ";
+                                ItemsFetched.Add(errorMsg);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                itemCount = -1;
+            }
+            if (itemCount == 0)
+            {
+                itemCount = -1;
+            }
+            return itemCount;
+        }
+
     }
 }
