@@ -436,7 +436,7 @@ namespace KKIHUB.Content.SyncService.Service
                         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         using (var response = await request.GetResponseAsync() as HttpWebResponse)
                         {
-                            if (response != null)
+                            if (response != null && response.StatusCode == HttpStatusCode.OK)
                             {
                                 itemReturned = ResponseStreamLogicContentAsync(response, itemReturned, libraryId);
                                 offset = offset + itemReturned;
@@ -465,53 +465,58 @@ namespace KKIHUB.Content.SyncService.Service
         {
 
             var responseStream = response.GetResponseStream();
-            if (responseStream != null)
+            if (responseStream != null && response.StatusCode == HttpStatusCode.OK)
             {
                 var reader = new StreamReader(responseStream, Encoding.Default);
                 var responseAsString = reader.ReadToEnd();
-
-                string[] items = responseAsString.Split("\n");
-                
-                itemCount = items.Length;
-
-                if (items != null && items.Any())
+                if (!string.IsNullOrEmpty(responseAsString))
                 {
-                    foreach (var item in items)
+                    string[] items = responseAsString.Split("\n");
+                    itemCount = items.Length;
+
+                    if (items != null && items.Any())
                     {
-                        if (!string.IsNullOrEmpty(item))
+                        foreach (var item in items)
                         {
-                            //var itemObj = item;
-                            try
+                            if (!string.IsNullOrEmpty(item))
                             {
-                                var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
-
-                                if (itemObj.ContainsKey("libraryId"))
+                                //var itemObj = item;
+                                try
                                 {
-                                    var itemId = itemObj["id"];
-                                    var itemLibraryId = itemObj["libraryId"].ToString();
-                                    if (itemLibraryId == libraryId)
+                                    var itemObj = JsonConvert.DeserializeObject<JsonObject>(item);
+
+                                    if (itemObj.ContainsKey("libraryId"))
                                     {
-                                        var itemClassification = itemObj["classification"].ToString();
-
-                                        var itemName = $"{itemId}_cmd.json".Replace(":", "_sep_").Replace(" ", "-");
-
-                                        var msg = JsonCreator.CreateJsonFile(itemName, itemClassification, item);
-                                        if (!string.IsNullOrWhiteSpace(msg))
+                                        var itemId = itemObj["id"];
+                                        var itemLibraryId = itemObj["libraryId"].ToString();
+                                        if (itemLibraryId == libraryId || itemLibraryId == "default")
                                         {
-                                            ItemsFetched.Add(msg);
+                                            var itemClassification = itemObj["classification"].ToString();
 
+                                            var itemName = $"{itemId}_cmd.json".Replace(":", "_sep_").Replace(" ", "-");
+
+                                            var msg = JsonCreator.CreateJsonFile(itemName, itemClassification, item);
+                                            if (!string.IsNullOrWhiteSpace(msg))
+                                            {
+                                                ItemsFetched.Add(msg);
+
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
+                                catch (Exception ex)
+                                {
 
-                                var errorMsg = $"Fetch Content {item} error : {ex.Message} ";
-                                ItemsFetched.Add(errorMsg);
+                                    var errorMsg = $"Fetch Content {item} error : {ex.Message} ";
+                                    ItemsFetched.Add(errorMsg);
+                                }
                             }
                         }
                     }
+                }
+                else
+                {
+                    itemCount = -1;
                 }
             }
             else
