@@ -9,7 +9,7 @@ namespace KKIHUB.Content.SyncService.Constants
             { "dev", "0cfd35055f2b4d22bca268ef6aafa477" },
             { "uat", "e731bd7f39b8494aa2af7cd0fbc8dbe4" },
             { "non-prod-8", "312b35e554ac4a408ca05b3a1d982f73" },
-            //{ "hangar-test", "70aea51c-4e79-4d9e-bbf5-4a2c21a23a3c" }
+            { "hangar-test", "48b3ec34dd1943e799dbf8cc318a03a4" }
         };
 
         public static Dictionary<string, string> HubNameToId = new Dictionary<string, string>
