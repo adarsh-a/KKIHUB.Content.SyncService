@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using KKIHUB.Content.SyncService.Model;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace KKIHUB.Content.SyncService.Service
             this.acousticService = acousticService;
         }
 
-        public async Task<List<string>> FetchContentAsync(int days, string hubId, bool recursive, bool onlyUpdated)
+        public async Task<List<ContentModel>> FetchContentAsync(int days, string hubId, bool recursive, bool onlyUpdated)
         {
             try
             {
@@ -46,7 +47,7 @@ namespace KKIHUB.Content.SyncService.Service
         }
 
 
-        public async Task<List<string>> FetchContentByLibrary(string hubId, string libraryId)
+        public async Task<List<ContentModel>> FetchContentByLibrary(string hubId, string libraryId)
         {
             try
             {

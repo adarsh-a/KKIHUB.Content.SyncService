@@ -20,6 +20,19 @@ namespace KKIHUB.Content.SyncService.Constants
             { "hangar-test", "70aea51c-4e79-4d9e-bbf5-4a2c21a23a3c" }
         };
 
+        public static Dictionary<string, string> LibraryIdMap = new Dictionary<string, string>
+        {
+            { "040d342f-c78d-44c2-872c-b5f0acd07d6b","Deutschland" },
+            { "4838a63c-9cd1-4d4e-a28e-3db6fda6ac38" ,"Ireland"},
+            { "95cc85ac-1669-4088-bcd2-c8fff18bd617" ,"France"},
+            { "70aea51c-4e79-4d9e-bbf5-4a2c21a23a3c" ,"Italia"},
+            { "0a861b00-ad92-4d19-b851-443f11c4a683","Netherlands" },
+            { "c8d215b7-2b92-42c7-b8bf-22ce07727798","Norge"},
+            { "77d05f48-8ade-4160-be16-09a97605c322","United Kingdom"},
+            { "064d499c-fad8-46bf-96d9-99a1c323743f","España"},
+            { "default","default" }
+        };
+
         public struct Endpoints
         {
             public static string Base = "https://content-eu-1.content-cms.com/api/{hubId}/";
@@ -29,10 +42,13 @@ namespace KKIHUB.Content.SyncService.Constants
 
         }
 
-        public struct Path 
+        public struct Path
         {
             public static string ArtifactPath = @"C:\learning\KKI\KKIHUB.Content.SyncService\Artifacts\";
 
         }
+
+
+
     }
 }

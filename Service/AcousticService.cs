@@ -1,4 +1,5 @@
 ﻿using KKIHUB.Content.SyncService.Helper;
+using KKIHUB.Content.SyncService.Model;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
@@ -15,8 +16,9 @@ namespace KKIHUB.Content.SyncService.Service
     public class AcousticService : IAcousticService
     {
         private List<string> ItemsFetched = new List<string>();
+        private List<ContentModel> ContentModelList = new List<ContentModel>();
 
-        public async Task<List<string>> FetchArtifactForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated)
+        public async Task<List<ContentModel>> FetchArtifactForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated)
         {
             ItemsFetched.Add($"Sync Started at {DateTime.Now}");
             if (Constants.Constants.HubNameToId.ContainsKey(hub)
@@ -58,16 +60,16 @@ namespace KKIHUB.Content.SyncService.Service
                 catch (Exception ex)
                 {
                     System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
-                    return ItemsFetched;
+                    return ContentModelList;
                 }
             }
             else
             {
                 System.Diagnostics.Trace.TraceError($"Hub Map not found ");
-                return ItemsFetched;
+                return ContentModelList;
             }
             ItemsFetched.Add($"Sync Ended at {DateTime.Now}");
-            return ItemsFetched;
+            return ContentModelList;
         }
 
         private async Task FecthContentByIdAsync(string contentIdUrl, List<string> artifactIds, string hubApi, bool recursive, string startDate)
@@ -211,10 +213,21 @@ namespace KKIHUB.Content.SyncService.Service
                         var itemId = itemObj["id"];
                         var itemName = $"{itemId}_cmd.json".Replace(":", "_");
 
+
                         var msg = JsonCreator.CreateJsonFile(itemName, itemClassification, item);
                         if (!string.IsNullOrWhiteSpace(msg))
                         {
                             ItemsFetched.Add(msg);
+
+                            var libraryId = itemObj["libraryId"].ToString();
+                            var name = itemObj["name"].ToString();
+                            ContentModelList.Add(new ContentModel
+                            {
+                                ItemId = itemId.ToString(),
+                                ItemName = name,
+                                LibraryId = libraryId,
+                                LibraryName = Constants.Constants.LibraryIdMap[libraryId]
+                            });
 
                         }
 
@@ -379,6 +392,15 @@ namespace KKIHUB.Content.SyncService.Service
                         if (!string.IsNullOrWhiteSpace(msg))
                         {
                             ItemsFetched.Add(msg);
+                            var libraryId = itemObj["libraryId"].ToString();
+                            var name = itemObj["name"].ToString();
+                            ContentModelList.Add(new ContentModel
+                            {
+                                ItemId = itemId.ToString(),
+                                ItemName = name,
+                                LibraryId = libraryId,
+                                LibraryName = Constants.Constants.LibraryIdMap[libraryId]
+                            });
 
                         }
 
@@ -404,7 +426,7 @@ namespace KKIHUB.Content.SyncService.Service
         }
 
 
-        public async Task<List<string>> FetchContentByLibrary(string hub, string libraryId)
+        public async Task<List<ContentModel>> FetchContentByLibrary(string hub, string libraryId)
         {
             ItemsFetched.Add($"Sync Started at {DateTime.Now}");
             int offset = 0;
@@ -447,16 +469,16 @@ namespace KKIHUB.Content.SyncService.Service
                 catch (Exception ex)
                 {
                     System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
-                    return ItemsFetched;
+                    return ContentModelList;
                 }
             }
             else
             {
                 System.Diagnostics.Trace.TraceError($"Hub Map not found ");
-                return ItemsFetched;
+                return ContentModelList;
             }
             ItemsFetched.Add($"Sync Ended at {DateTime.Now}");
-            return ItemsFetched;
+            return ContentModelList;
         }
 
 
@@ -499,6 +521,14 @@ namespace KKIHUB.Content.SyncService.Service
                                             if (!string.IsNullOrWhiteSpace(msg))
                                             {
                                                 ItemsFetched.Add(msg);
+                                                var name = itemObj["name"].ToString();
+                                                ContentModelList.Add(new ContentModel
+                                                {
+                                                    ItemId = itemId.ToString(),
+                                                    ItemName = name,
+                                                    LibraryId = itemLibraryId,
+                                                    LibraryName = Constants.Constants.LibraryIdMap[itemLibraryId]
+                                                });
 
                                             }
                                         }
@@ -529,6 +559,8 @@ namespace KKIHUB.Content.SyncService.Service
             }
             return itemCount;
         }
+
+
 
     }
 }
