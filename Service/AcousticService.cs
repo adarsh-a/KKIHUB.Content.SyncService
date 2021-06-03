@@ -226,7 +226,8 @@ namespace KKIHUB.Content.SyncService.Service
                                 ItemId = itemId.ToString(),
                                 ItemName = name,
                                 LibraryId = libraryId,
-                                LibraryName = Constants.Constants.LibraryIdMap[libraryId]
+                                LibraryName = Constants.Constants.LibraryIdMap[libraryId],
+                                Filename = itemName
                             });
 
                         }
@@ -399,7 +400,8 @@ namespace KKIHUB.Content.SyncService.Service
                                 ItemId = itemId.ToString(),
                                 ItemName = name,
                                 LibraryId = libraryId,
-                                LibraryName = Constants.Constants.LibraryIdMap[libraryId]
+                                LibraryName = Constants.Constants.LibraryIdMap[libraryId],
+                                Filename = itemName
                             });
 
                         }
@@ -527,7 +529,8 @@ namespace KKIHUB.Content.SyncService.Service
                                                     ItemId = itemId.ToString(),
                                                     ItemName = name,
                                                     LibraryId = itemLibraryId,
-                                                    LibraryName = Constants.Constants.LibraryIdMap[itemLibraryId]
+                                                    LibraryName = Constants.Constants.LibraryIdMap[itemLibraryId],
+                                                    Filename = itemName
                                                 });
 
                                             }

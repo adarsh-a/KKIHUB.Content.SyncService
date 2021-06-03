@@ -26,5 +26,29 @@ namespace KKIHUB.Content.SyncService.Helper
             }
             return string.Empty;
         }
+
+
+        public static List<string> ListContent(string type)
+        {
+            string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
+            var directory = Directory.CreateDirectory(path);
+
+            return directory.GetFiles().Select(i => i.Name).ToList();
+        }
+
+        public static bool Delete(string type, List<string> itemToDelete)
+        {
+            string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
+
+            foreach (var item in itemToDelete)
+            {
+                var filePath = Path.Combine(path, item);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            return true;
+        }
     }
 }
