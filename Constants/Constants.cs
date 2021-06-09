@@ -44,11 +44,8 @@ namespace KKIHUB.Content.SyncService.Constants
 
         public struct Path
         {
-            public static string ArtifactPath = @"C:\inetpub\wwwroot\KKIHUB.Content.SyncService\Artifacts\";
-
+            public static string ArtifactPath = @"Artifacts\";
+            public static string WchtoolsPath = @"wchtools_non-prod.ps1";
         }
-
-
-
     }
 }
