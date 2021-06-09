@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using KKIHUB.Content.SyncService.Helper;
@@ -46,10 +46,10 @@ namespace KKIHUB.Content.SyncService.Controllers
         public async Task<IActionResult> SyncContentUpdated(int days, string sourceHub, string targetHub)
         {
             var content = await ContentService.FetchContentAsync(days, sourceHub, true, true);
+            CommandHelper.ExcecuteScript(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath));
 
             return Json(content);
         }
-
 
         [HttpGet]
         [Route("ContentByLibrary")]
@@ -59,7 +59,6 @@ namespace KKIHUB.Content.SyncService.Controllers
 
             return Json(content);
         }
-
 
         [HttpGet]
         [Route("PushContent")]
@@ -107,7 +106,7 @@ namespace KKIHUB.Content.SyncService.Controllers
 
         private void ExecuteCommand()
         {
-            var filePath = string.Concat(Constants.Constants.Path.ArtifactPath, "wchtools_non-prod.cmd");
+            var filePath = Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.ArtifactPath, "wchtools_non-prod.cmd");
             //System.Diagnostics.Process.Start(filePath);
 
 
@@ -159,13 +158,14 @@ namespace KKIHUB.Content.SyncService.Controllers
         private void SyncContent()
         {
 
-            var filePath = Constants.Constants.Path.ArtifactPath;
+            var filePath = Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.ArtifactPath);
+
             //string installWchtools = "call npx -i -g --production --no-optional wchtools-cli";
             // ExecuteCommandInApp(installWchtools, filePath);
             //string initCommand = "npx wchtools init --url https://content-eu-1.content-cms.com/api/37dd7bf6-5628-4aac-8464-f4894ddfb8c4 --user adarsh.bhautoo@hangarww.com --password Ad1108bh_hangarMU";
             //ExecuteCommandInApp(initCommand, filePath);
 
-            var commandFile = string.Concat(Constants.Constants.Path.ArtifactPath, "wchtools_non-prod.cmd");
+            var commandFile = string.Concat(filePath, "wchtools_non-prod.cmd");
             ExecuteCommandInApp(commandFile, filePath);
 
         }
