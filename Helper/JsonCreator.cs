@@ -12,7 +12,8 @@ namespace KKIHUB.Content.SyncService.Helper
     {
         public static string CreateJsonFile(string name, string type, object details)
         {
-            string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
+            var artifactPath = Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.ArtifactPath);
+            string path = string.Concat(artifactPath, type);
             Directory.CreateDirectory(path);
 
             var filePath = Path.Combine(path, name);
@@ -30,7 +31,8 @@ namespace KKIHUB.Content.SyncService.Helper
 
         public static List<string> ListContent(string type)
         {
-            string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
+            var artifactPath = Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.ArtifactPath);
+            string path = string.Concat(artifactPath, type);
             var directory = Directory.CreateDirectory(path);
 
             return directory.GetFiles().Select(i => i.Name).ToList();
@@ -38,7 +40,8 @@ namespace KKIHUB.Content.SyncService.Helper
 
         public static bool Delete(string type, List<string> itemToDelete)
         {
-            string path = string.Concat(Constants.Constants.Path.ArtifactPath, type);
+            var artifactPath = Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.ArtifactPath);
+            string path = string.Concat(artifactPath, type);
 
             foreach (var item in itemToDelete)
             {
