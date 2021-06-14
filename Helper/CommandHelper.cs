@@ -23,5 +23,34 @@ namespace KKIHUB.Content.SyncService.Helper
                 Debug.WriteLine(err);
             }
         }
+
+        public static string ExcecuteScriptOutput(string filePath)
+        {
+            var finalOutputMessage = string.Empty;
+            try
+            {
+                var startInfo = new ProcessStartInfo()
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy unrestricted -File \"{filePath}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+                var process = Process.Start(startInfo);
+                
+                while (!process.StandardOutput.EndOfStream)
+                {
+                    finalOutputMessage = process.StandardOutput.ReadLine();
+                }
+            }
+
+            catch (Exception err)
+            {
+                Debug.WriteLine(err);
+                finalOutputMessage = err.ToString();
+            }
+
+            return finalOutputMessage;
+        }
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using KKIHUB.Content.SyncService.Helper;
 using KKIHUB.Content.SyncService.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -46,7 +45,6 @@ namespace KKIHUB.Content.SyncService.Controllers
         public async Task<IActionResult> SyncContentUpdated(int days, string sourceHub, string targetHub)
         {
             var content = await ContentService.FetchContentAsync(days, sourceHub, true, true);
-            CommandHelper.ExcecuteScript(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath));
 
             return Json(content);
         }
@@ -64,7 +62,7 @@ namespace KKIHUB.Content.SyncService.Controllers
         [Route("PushContent")]
         public IActionResult PushContent(string filepaths)
         {
-
+            string message = string.Empty;
             if (!string.IsNullOrEmpty(filepaths))
             {
                 try
@@ -85,7 +83,7 @@ namespace KKIHUB.Content.SyncService.Controllers
                             {
                                 var flag = JsonCreator.Delete("content", itemsToDelete);
                             }
-                            SyncContent();
+                            message = CommandHelper.ExcecuteScriptOutput(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath));
                         }
 
 
@@ -93,14 +91,14 @@ namespace KKIHUB.Content.SyncService.Controllers
                 }
                 catch (Exception ex)
                 {
-
                     System.Diagnostics.Trace.TraceError($"Error pushing content at {ex.Message} ");
+                    message = ex.Message;
                 }
             }
 
             //var content = await ContentService.FetchContentByLibrary(sourceHub, libraryId);
 
-            return Json("Completed");
+            return Json(message);
         }
 
 
@@ -169,6 +167,5 @@ namespace KKIHUB.Content.SyncService.Controllers
             ExecuteCommandInApp(commandFile, filePath);
 
         }
-
     }
 }
