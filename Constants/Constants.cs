@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace KKIHUB.Content.SyncService.Constants
 {
@@ -38,6 +38,7 @@ namespace KKIHUB.Content.SyncService.Constants
             public static string Base = "https://content-eu-1.content-cms.com/api/{hubId}/";
             public static string FetchContentDateRange = "authoring/v1/content/views/by-modified";
             public static string FetchContentById = "authoring/v1/content";
+            public static string FetchAssetsById = "authoring/v1/assets";
             public static string FetchType = "authoring/v1/types";
 
         }
