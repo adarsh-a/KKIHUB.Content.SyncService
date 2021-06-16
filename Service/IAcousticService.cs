@@ -13,10 +13,8 @@ namespace KKIHUB.Content.SyncService.Service
 
         Task<List<string>> FetchTypeAsync(int days, string hub, bool recursive, bool onlyUpdated);
 
-
         Task<List<ContentModel>> FetchContentByLibrary(string hub, string libraryId);
 
         List<AssetModel> FetchAssetsList();
-
     }
 }

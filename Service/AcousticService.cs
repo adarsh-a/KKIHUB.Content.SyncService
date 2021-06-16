@@ -75,6 +75,13 @@ namespace KKIHUB.Content.SyncService.Service
             return ContentModelList;
         }
 
+        public List<AssetModel> FetchAssetsList()
+        {
+            var assetList = AssetModelList;
+
+            return assetList;
+        }
+
         private async Task FecthContentByIdAsync(string contentIdUrl, List<string> artifactIds, string hubApi, bool recursive, string startDate)
         {
             foreach (var id in artifactIds)
@@ -122,7 +129,6 @@ namespace KKIHUB.Content.SyncService.Service
                                 await ExtractElementAsyncv2(itemObj, contentIdUrl, hubApi, recursive, startDate);
 
                             }
-
                         }
                     }
                 }
@@ -195,7 +201,7 @@ namespace KKIHUB.Content.SyncService.Service
 
 
         private async Task ResponseStreamLogicAsync(HttpWebResponse response,
-            string contentIdUrl, string hubApi, bool recursive,
+            string hub, string contentIdUrl, string hubApi, bool recursive,
             string startdate, bool onlyUpdated, bool isAsset = false)
         {
 
@@ -235,12 +241,11 @@ namespace KKIHUB.Content.SyncService.Service
 
                         }
 
-                        if (!isAsset && !onlyUpdated)
+                        //need to know onlyUpdated is defined
+                        if (!isAsset) //&& !onlyUpdated)
                         {
-                            //await ExtractElementAsync(itemObj, contentIdUrl, hubApi, recursive, startdate);
-
                             await ExtractElementAsyncv2(itemObj, contentIdUrl, hubApi, recursive, startdate);
-
+                            await GetAssetPath(hub);
                         }
                     }
                 }
@@ -334,6 +339,30 @@ namespace KKIHUB.Content.SyncService.Service
                                         if (!associatedId.Contains(id) && !string.Equals(itemId, id))
                                         {
                                             associatedId.Add(id);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    else if (elementValue.Contains(" \"elementType\": \"image\"") || elementValue.Contains(" \"elementType\": \"video\""))
+                    {
+                        string[] elements = elementValue.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                        if (elements != null && elements.Any())
+                        {
+                            for (int i = 0; i < elements.Length; i++)
+                            {
+                                var ele = elements[i];
+                                if (ele.Contains("\"id\":") && CheckPrevious(i, elements))
+                                {
+                                    var stringSplit = ele.Trim().Split(" ");
+                                    if (stringSplit.Length > 1)
+                                    {
+                                        var id = stringSplit[1].Replace("\"", "");
+                                        if (!AssociatedAssetsId.Contains(id) && !string.Equals(itemId, id))
+                                        {
+                                            AssociatedAssetsId.Add(id);
                                         }
                                     }
                                 }

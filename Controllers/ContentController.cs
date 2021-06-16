@@ -91,7 +91,7 @@ namespace KKIHUB.Content.SyncService.Controllers
                             {
                                 assetString = string.Join('|', asset.Path);
                             }
-                            
+
                         
                             assetString = assetString.TrimEnd('|');
                             CommandHelper.ExcecuteScript(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath), assetString);
