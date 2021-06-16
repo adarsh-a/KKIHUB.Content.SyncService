@@ -1,11 +1,12 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace KKIHUB.Content.SyncService.Helper
 {
     public static class CommandHelper
     {
-        public static void ExcecuteScript(string filePath)
+        public static void ExcecuteScript(string filePath, string assetList)
         {
             try
             {
@@ -15,6 +16,11 @@ namespace KKIHUB.Content.SyncService.Helper
                     Arguments = $"-NoProfile -ExecutionPolicy unrestricted -File \"{filePath}\"",
                     UseShellExecute = true
                 };
+
+                startInfo.Arguments = assetList != null
+                   ? $"-NoProfile -ExecutionPolicy unrestricted -File \"{filePath}\" {assetList}"
+                   : startInfo.Arguments;
+
                 Process.Start(startInfo);
             }
 

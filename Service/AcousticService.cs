@@ -1,6 +1,7 @@
-﻿using KKIHUB.Content.SyncService.Helper;
+using KKIHUB.Content.SyncService.Helper;
 using KKIHUB.Content.SyncService.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace KKIHUB.Content.SyncService.Service
     {
         private List<string> ItemsFetched = new List<string>();
         private List<ContentModel> ContentModelList = new List<ContentModel>();
+        private List<string> AssociatedAssetsId = new List<string>();
+        private static List<AssetModel> AssetModelList = new List<AssetModel>();
 
         public async Task<List<ContentModel>> FetchArtifactForDateRangeAsync(int days, string hub, bool recursive, bool onlyUpdated)
         {
@@ -53,7 +56,7 @@ namespace KKIHUB.Content.SyncService.Service
                     {
                         if (response != null)
                         {
-                            await ResponseStreamLogicAsync(response, contentIdUrl, hubApi, recursive, startdate, onlyUpdated);
+                            await ResponseStreamLogicAsync(response, hub, contentIdUrl, hubApi, recursive, startdate, onlyUpdated);
                         }
                     }
                 }
@@ -362,6 +365,19 @@ namespace KKIHUB.Content.SyncService.Service
 
         }
 
+        private bool IsAsset (int index, string[] elementList)
+        {
+            if (index > 0)
+            {
+                var previousElement = elementList[index - 1];
+                if (previousElement.Contains("\"asset\":"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
 
         private async Task<int> ResponseStreamLogicTypeAsync(HttpWebResponse response,
@@ -484,6 +500,57 @@ namespace KKIHUB.Content.SyncService.Service
         }
 
 
+        public async Task<List<AssetModel>> GetAssetPath(string sourceHub)
+        {
+            foreach (var assetId in AssociatedAssetsId)
+            {
+                if (Constants.Constants.HubNameToId.ContainsKey(sourceHub) && 
+                    Constants.Constants.HubToApi.ContainsKey(sourceHub)) {
+
+                    var hubId = Constants.Constants.HubNameToId[sourceHub];
+                    var hubApi = Constants.Constants.HubToApi[sourceHub];
+
+                    try
+                    {
+                        var baseUrl = Constants.Constants.Endpoints.Base.Replace("{hubId}", hubId);
+                        var assetUrl = $"{baseUrl}{Constants.Constants.Endpoints.FetchAssetsById}/{assetId}";
+
+                        var parameters = "fields=path";
+                        assetUrl = $"{assetUrl}?{parameters}";
+
+                        var request = WebRequest.Create(new Uri(assetUrl));
+                        request.Method = "GET";
+
+                        string credidentials = "AcousticAPIKey" + ":" + hubApi;
+                        var authorization = Convert.ToBase64String(Encoding.Default.GetBytes(credidentials));
+                        request.Headers["Authorization"] = "Basic " + authorization;
+
+                        request.ContentType = "application/json";
+                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        using (var response = await request.GetResponseAsync() as HttpWebResponse)
+                        {
+                            if (response != null && response.StatusCode == HttpStatusCode.OK)
+                            {
+                                AssetModel asset = new AssetModel
+                                {
+                                    Path = ResponseStreamAssetPath(response)
+                                };
+
+                                AssetModelList.Add(asset);
+                            }
+                        }
+                    }
+
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Trace.TraceError($"Fetch Content error : {ex.Message}");
+                    }
+                }
+            }
+
+            return AssetModelList;
+        }
+
         private int ResponseStreamLogicContentAsync(HttpWebResponse response,
           int itemCount, string libraryId)
         {
@@ -563,7 +630,21 @@ namespace KKIHUB.Content.SyncService.Service
             return itemCount;
         }
 
-
-
+        private string ResponseStreamAssetPath(HttpWebResponse response)
+        {
+            string assetPath = string.Empty;
+            var responseStream = response.GetResponseStream();
+            if (responseStream != null && response.StatusCode == HttpStatusCode.OK)
+            {
+                var reader = new StreamReader(responseStream, Encoding.Default);
+                var responseAsString = reader.ReadToEnd();
+                if (!string.IsNullOrEmpty(responseAsString))
+                {
+                    dynamic data = JObject.Parse(responseAsString);
+                    assetPath = data.path;
+                }
+            }
+            return assetPath;
+        }
     }
 }
