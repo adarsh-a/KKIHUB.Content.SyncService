@@ -62,6 +62,20 @@ namespace KKIHUB.Content.SyncService.Service
 
         }
 
-       
+        public List<AssetModel> FetchAssetsList()
+        {
+            try
+            {
+                var assetsList = acousticService.FetchAssetsList();
+                return assetsList;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"Fetch Artifacts error : {ex.Message}");
+                return null;
+            }
+
+        }
+
     }
 }

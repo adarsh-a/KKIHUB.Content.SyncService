@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -83,7 +83,18 @@ namespace KKIHUB.Content.SyncService.Controllers
                             {
                                 var flag = JsonCreator.Delete("content", itemsToDelete);
                             }
-                            message = CommandHelper.ExcecuteScriptOutput(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath));
+                            //message = CommandHelper.ExcecuteScriptOutput(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath));
+                            var assets = ContentService.FetchAssetsList().ToList();
+
+                            var assetString = string.Empty;
+                            foreach (var asset in assets)
+                            {
+                                assetString = string.Join('|', asset.Path);
+                            }
+
+                        
+                            assetString = assetString.TrimEnd('|');
+                            CommandHelper.ExcecuteScript(Path.Combine(Environment.CurrentDirectory, Constants.Constants.Path.WchtoolsPath), assetString);
                         }
 
 
